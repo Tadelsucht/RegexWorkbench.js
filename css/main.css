@@ -1,0 +1,58 @@
+* {
+	margin: 0px;
+	padding: 0px;
+}
+
+body {
+	padding: 10px;
+}
+
+#regexPattern {
+	width: 98%;
+	min-width: 98%;
+	max-width: 98%;
+	margin-left: 1%;
+	height: 18px;
+	line-height: 18px;
+	border-style: solid;
+	border-width: 1px;
+	border-color: #cccccc;
+}
+
+#optionReplace {
+	margin-left: 1%;
+}
+
+#regexReplace {
+	width: 98%;
+	min-width: 98%;
+	max-width: 98%;
+	margin-left: 1%;
+	background-color: #FFFFFF;
+	border-style: solid;
+	border-width: 1px;
+	border-color: #cccccc;
+}
+
+#regexInput {
+	width: 98%;
+	min-width: 98%;
+	max-width: 98%;
+	margin-left: 1%;
+	min-height: 300px;
+	border-style: solid;
+	border-width: 1px;
+	border-color: #cccccc;
+}
+
+#regexOutput {
+	width: 98%;
+	min-width: 98%;
+	max-width: 98%;
+	margin-left: 1%;
+	min-height: 150px;
+	background-color: #e6e6e6;
+	border-style: solid;
+	border-width: 1px;
+	border-color: #cccccc;
+}
