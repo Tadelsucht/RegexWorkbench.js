@@ -30,6 +30,9 @@
 				
 				$("#regexPattern").focusout(function(){
 					addPaternStyle();
+					if($("#regexPattern").html() == "undefined") {
+						$("#regexPattern").html("");
+					}
 				});
 				
 				$("#regexReplace").on('input', function(){
