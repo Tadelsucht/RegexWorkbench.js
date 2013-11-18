@@ -9,7 +9,6 @@
 		<link rel="stylesheet" type="text/css" href="css/main.css" />
 		<link rel="stylesheet" type="text/css" href="css/regex-colorizer.css" />
 		<script type="text/javascript" src="js/jquery-1.10.2.min.js"></script>
-		<script type="text/javascript" src="js/RegexWorkbench.js"></script>
 		<script type="text/javascript" src="js/regex-colorizer.js"></script>
 		<script type="text/javascript">
 			$(function(){
@@ -110,16 +109,18 @@
 					var regexInput = unescape(encodeURIComponent( $("#regexInput").val() ));
 					
 					var matchArray = RWmatch(regexPattern, regexInput, modifiers);
-
+					var regexOutput = "";
 
 					try {
 						var i = 0;
 						while( i < matchArray.length){
 							if(matchArray[i] != undefined) {
-								$('#regexOutput').val( $("#regexOutput").val() + decodeURIComponent(escape( matchArray[i] )) + "\n" );
+								regexOutput = regexOutput + decodeURIComponent(escape( matchArray[i] )) + "\n";
 							}
 							i++;
 						}
+						$('#regexOutput').val(regexOutput);
+						
 						
 						// Numer of matches
 						if(matchArray[0] == ""){
@@ -131,6 +132,42 @@
 						
 					} catch (e) {
 						// regexInput is empty
+					}
+					
+					
+					function RWmatch(regexPattern, regexInput, modifiers) {
+						if(regexPattern != "" && regexInput != ""){
+							try {
+								var pattern = RegExp(regexPattern, modifiers);
+							} catch (e) {
+								// Error: Not a regular expression
+							}
+							var matchArray = new Array();
+							
+							
+							match = pattern.exec(regexInput);
+							for (var i = 0; match != null; i++) {
+								matchArray[i] = match[1];
+								for(var j = 2; j <= match.length-1; j++){
+									matchArray[i] = matchArray[i] + "," + match[j];
+								}
+								
+								match = pattern.exec(regexInput);
+							}
+						
+						
+							return matchArray;
+						}
+					}
+
+					function RWreplace(regexPattern, regexReplace, regexInput, modifiers) {
+						try {
+							var pattern = RegExp(regexPattern, modifiers);
+						} catch (e) {
+							// Error: Not a regular expression
+						}
+						
+						return regexInput.replace(pattern, regexReplace);
 					}
 
 				}
@@ -161,6 +198,7 @@
 		<br />
 		<br />
 		<center>
+			RegexWorkbench.js is a editor for regular expressions based on javascript. Features are Highlighting, Replace, Ignore Cases, Multiline and a human readable output. [ MIT License ]<br />
 			<a href="https://github.com/Staubteufel/RegexWorkbench.js">Fork me on Github</a>
 		</center>
 	</body>
