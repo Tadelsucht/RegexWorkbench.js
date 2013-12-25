@@ -11,22 +11,17 @@
 		<script type="text/javascript" src="js/regex-colorizer.js"></script>
 		<script type="text/javascript">
 			$(function(){
-				/// Variables
-				var isReplace = false;
-
-				
 				/// Auto-Run
-				if($("#optionReplace").prop('checked')) 
-					isReplace = true;
 				chooseFunction();
 
-
-				
 				/// Events
-				$("#regexPattern").on('input', function(){
-					chooseFunction();
-				});
+				$("#regexPattern").on('input', chooseFunction);	
+				$("#regexReplace").on('input', chooseFunction);	
+				$("#regexInput").on('input', chooseFunction);
+				$("#optionMultiline").on("click", chooseFunction);	
+				$("#optionIgnoreCase").on("click", chooseFunction);	
 				
+
 				$("#regexPattern").focusout(function(){
 					addPaternStyle();
 					if($("#regexPattern").html() == "undefined") {
@@ -34,13 +29,6 @@
 					}
 				});
 				
-				$("#regexReplace").on('input', function(){
-					chooseFunction();
-				});
-				
-				$("#regexInput").on('input', function(){
-					chooseFunction();
-				});
 				
 				$("#optionReplace").on("click", function() {
 					if(isReplace){
@@ -53,17 +41,12 @@
 					chooseFunction();
 				});
 				
-				$("#optionMultiline").on("click", function() {
-					chooseFunction();
-				});
 				
-				$("#optionIgnoreCase").on("click", function() {
-					chooseFunction();
-				});
 				
 
 
 				/// Functions
+				// regex-colorizer
 				function addPaternStyle() {
 					RegexColorizer.addStyleSheet();
 					RegexColorizer.colorizeAll();
@@ -73,14 +56,14 @@
 					// Modifiers
 					var modifiers = "g";
 					if( $('#optionMultiline').prop('checked') )
-						modifiers = modifiers + "m";
+						modifiers += "m";
 
 					if( $('#optionIgnoreCase').prop('checked') )
-						modifiers = modifiers + "i";
+						modifiers += "i";
 
 					
 					// Start function
-					if(isReplace) {
+					if( $("#optionReplace").is(':checked') ) {
 						updateReplace(modifiers);
 					}
 					else {
@@ -121,7 +104,7 @@
 						$('#regexOutput').val(regexOutput);
 						
 						
-						// Numer of matches
+						// Number of matches
 						if(matchArray[0] == ""){
 							$("#numberOfMatches").html(0);
 						}
@@ -132,6 +115,7 @@
 					} catch (e) {
 						// regexInput is empty
 					}
+				}
 					
 					
 					function RWmatch(regexPattern, regexInput, modifiers) {
@@ -152,6 +136,12 @@
 								}
 								
 								match = pattern.exec(regexInput);
+								
+								
+								if(i > 1000000) {
+									alert("Stopped operation => Over 1 million data sets.");
+									break;
+								}
 							}
 						
 						
@@ -169,7 +159,7 @@
 						return regexInput.replace(pattern, regexReplace);
 					}
 
-				}
+				
 			});
 		</script>
 	</head>
