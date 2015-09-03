@@ -19,7 +19,8 @@
 				$("#regexReplace").on('input', chooseFunction);	
 				$("#regexInput").on('input', chooseFunction);
 				$("#optionMultiline").on("click", chooseFunction);	
-				$("#optionIgnoreCase").on("click", chooseFunction);	
+				$("#optionIgnoreCase").on("click", chooseFunction);
+				$("#forceRefresh").on("click", chooseFunction);
 				
 
 				$("#regexPattern").focusout(function(){
@@ -166,6 +167,7 @@
 	<body>
 		Regular Expression Pattern:<br />
 		<div id="regexPattern" class="regex" contenteditable=""></div>
+		<button id="forceRefresh">Force refresh</button>
 		<br />
 		Options:<br />
 		<input type="checkbox" id="optionReplace">Replace <input type="checkbox" id="optionMultiline">Multiline <input type="checkbox" id="optionIgnoreCase">Ignore Case
