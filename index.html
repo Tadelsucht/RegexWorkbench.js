@@ -1,196 +1,204 @@
 <!DOCTYPE HTML>
 <html>
-	<head>
-		<meta http-equiv="content-type" content="text/html; charset=utf-8">
-		<meta name="description" content="RegexWorkbench.js is an online open source tool and tester for regular expressions based on javascript. Features are Highlighting, Replace, Ignore Cases, Multiline and a human readable output. [ MIT License ]" />
-		<meta name="keywords" content="regex, workbench, regular, expression, regex, regexp, online, tool, tester, editor, javascript" />
-		<title>RegexWorkbench.js</title>
-		<link rel="stylesheet" type="text/css" href="css/main.css" />
-		<link rel="stylesheet" type="text/css" href="css/regex-colorizer.css" />
-		<script type="text/javascript" src="js/jquery-1.10.2.min.js"></script>
-		<script type="text/javascript" src="js/regex-colorizer.js"></script>
-		<script type="text/javascript">
-			$(function(){
-				/// Auto-Run
-				chooseFunction();
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta name="description" content="RegexWorkbench.js is an online open source tool and tester for regular expressions based on javascript. Features are Highlighting, Replace, Ignore Cases, Multiline and a human readable output. [ MIT License ]" />
+    <meta name="keywords" content="regex, workbench, regular, expression, regex, regexp, online, tool, tester, editor, javascript" />
+    <title>RegexWorkbench.js</title>
+    <link rel="stylesheet" type="text/css" href="css/main.css" />
+    <link rel="stylesheet" type="text/css" href="css/regex-colorizer.css" />
+    <script type="text/javascript" src="js/jquery-1.10.2.min.js"></script>
+    <script type="text/javascript" src="js/regex-colorizer.js"></script>
+    <script type="text/javascript">
+      $(function(){
+        // Auto-run the regex function on page load
+        chooseFunction();
 
-				/// Events
-				$("#regexPattern").on('input', chooseFunction);	
-				$("#regexReplace").on('input', chooseFunction);	
-				$("#regexInput").on('input', chooseFunction);
-				$("#optionMultiline").on("click", chooseFunction);	
-				$("#optionIgnoreCase").on("click", chooseFunction);
-				$("#forceRefresh").on("click", chooseFunction);
-				
+        // Event listeners for inputs and options
+        $("#regexPattern").on('input', chooseFunction);  
+        $("#regexReplace").on('input', chooseFunction);  
+        $("#regexInput").on('input', chooseFunction);
+        $("#optionMultiline").on("click", chooseFunction);  
+        $("#optionIgnoreCase").on("click", chooseFunction);
+        $("#forceRefresh").on("click", chooseFunction);
+        
+        // Apply pattern styling when regexPattern loses focus
+        $("#regexPattern").focusout(function(){
+          addPaternStyle();
+          if($("#regexPattern").html() == "undefined") {
+            $("#regexPattern").html("");
+          }
+        });
+        
+        // Toggle Replace option
+        $("#optionReplace").on("click", function() {
+          if(isReplace){
+            isReplace = false;
+          }
+          else {
+            isReplace = true;
+          }
+          chooseFunction();
+        });
+        
+        // New Button: Unique Output - Remove duplicate lines from output
+        $("#uniqueOutput").on("click", function(){
+          // Get the content of the output and split it into lines
+          var outputText = $("#regexOutput").val();
+          var lines = outputText.split("\n");
+          var uniqueLines = [];
+          
+          // Add each line only if it is not already in the array
+          $.each(lines, function(i, line){
+            if($.inArray(line, uniqueLines) === -1){
+              uniqueLines.push(line);
+            }
+          });
+          
+          // Join the unique lines and update the output
+          $("#regexOutput").val(uniqueLines.join("\n"));
+        });
 
-				$("#regexPattern").focusout(function(){
-					addPaternStyle();
-					if($("#regexPattern").html() == "undefined") {
-						$("#regexPattern").html("");
-					}
-				});
-				
-				
-				$("#optionReplace").on("click", function() {
-					if(isReplace){
-						isReplace = false;
-					}
-					else {
-						isReplace = true;
-					}
-					
-					chooseFunction();
-				});
-				
-				
-				
+        // Function to add styling for regex pattern highlighting
+        function addPaternStyle() {
+          RegexColorizer.addStyleSheet();
+          RegexColorizer.colorizeAll();
+        }
+        
+        // Choose which function to run based on the selected options
+        function chooseFunction() {
+          // Set regex modifiers
+          var modifiers = "g";
+          if( $('#optionMultiline').prop('checked') )
+            modifiers += "m";
+          if( $('#optionIgnoreCase').prop('checked') )
+            modifiers += "i";
 
+          // Run replace or match function based on the Replace option
+          if( $("#optionReplace").is(':checked') ) {
+            updateReplace(modifiers);
+          }
+          else {
+            updateMatches(modifiers);
+          }
+        }
+        
+        // Function to handle regex replacement
+        function updateReplace(modifiers) {
+          var regexPattern = unescape(encodeURIComponent( $("#regexPattern").text() ));
+          var regexReplace = unescape(encodeURIComponent( $("#regexReplace").val() ));
+          var regexInput = unescape(encodeURIComponent( $("#regexInput").val() ));
+          
+          var replaceOutput = RWreplace(regexPattern, regexReplace, regexInput, modifiers);
+          try {
+            $('#regexOutput').val( decodeURIComponent(escape( replaceOutput )) );
+          }
+          catch (e) {
+            // Error handling if replacement fails
+          }
+        }
+        
+        // Function to update and display regex matches
+        function updateMatches(modifiers) {
+          $("#regexOutput").val("");
+          var regexPattern = unescape(encodeURIComponent( $("#regexPattern").text() ));
+          var regexInput = unescape(encodeURIComponent( $("#regexInput").val() ));
+          
+          var matchArray = RWmatch(regexPattern, regexInput, modifiers);
+          var regexOutput = "";
 
-				/// Functions
-				// regex-colorizer
-				function addPaternStyle() {
-					RegexColorizer.addStyleSheet();
-					RegexColorizer.colorizeAll();
-				}
-				
-				function chooseFunction() {
-					// Modifiers
-					var modifiers = "g";
-					if( $('#optionMultiline').prop('checked') )
-						modifiers += "m";
+          try {
+            var i = 0;
+            while( i < matchArray.length){
+              if(matchArray[i] != undefined) {
+                regexOutput = regexOutput + decodeURIComponent(escape( matchArray[i] )) + "\n";
+              }
+              i++;
+            }
+            $('#regexOutput').val(regexOutput);
+            
+            // Update the displayed number of matches
+            if(matchArray[0] == ""){
+              $("#numberOfMatches").html(0);
+            }
+            else {
+              $("#numberOfMatches").html(i);
+            }
+            
+          } catch (e) {
+            // Handle error when regexInput is empty or another error occurs
+          }
+        }
+          
+        // Function to retrieve regex matches
+        function RWmatch(regexPattern, regexInput, modifiers) {
+          if(regexPattern != "" && regexInput != ""){
+            try {
+              var pattern = RegExp(regexPattern, modifiers);
+            } catch (e) {
+              // Error: Not a valid regular expression
+            }
+            var matchArray = new Array();
+            
+            match = pattern.exec(regexInput);
+            for (var i = 0; match != null; i++) {
+              matchArray[i] = match[1];
+              for(var j = 2; j <= match.length-1; j++){
+                matchArray[i] = matchArray[i] + "," + match[j];
+              }
+              
+              match = pattern.exec(regexInput);
+              
+              if(i > 1000000) {
+                alert("Stopped operation => Over 1 million data sets.");
+                break;
+              }
+            }
+          
+            return matchArray;
+          }
+        }
 
-					if( $('#optionIgnoreCase').prop('checked') )
-						modifiers += "i";
-
-					
-					// Start function
-					if( $("#optionReplace").is(':checked') ) {
-						updateReplace(modifiers);
-					}
-					else {
-						updateMatches(modifiers);
-					}
-				}
-				
-				function updateReplace(modifiers) {
-					var regexPattern = unescape(encodeURIComponent( $("#regexPattern").text() ));
-					var regexReplace = unescape(encodeURIComponent( $("#regexReplace").val() ));
-					var regexInput = unescape(encodeURIComponent( $("#regexInput").val() ));
-					
-					var replaceOutput = RWreplace(regexPattern, regexReplace, regexInput, modifiers);
-					try {
-						$('#regexOutput').val( decodeURIComponent(escape( replaceOutput )) );
-					}
-					catch (e) {
-						// Error 
-					}
-				}
-				
-				function updateMatches(modifiers) {
-					$("#regexOutput").val("");
-					var regexPattern = unescape(encodeURIComponent( $("#regexPattern").text() ));
-					var regexInput = unescape(encodeURIComponent( $("#regexInput").val() ));
-					
-					var matchArray = RWmatch(regexPattern, regexInput, modifiers);
-					var regexOutput = "";
-
-					try {
-						var i = 0;
-						while( i < matchArray.length){
-							if(matchArray[i] != undefined) {
-								regexOutput = regexOutput + decodeURIComponent(escape( matchArray[i] )) + "\n";
-							}
-							i++;
-						}
-						$('#regexOutput').val(regexOutput);
-						
-						
-						// Number of matches
-						if(matchArray[0] == ""){
-							$("#numberOfMatches").html(0);
-						}
-						else {
-							$("#numberOfMatches").html(i);
-						}
-						
-					} catch (e) {
-						// regexInput is empty
-					}
-				}
-					
-					
-					function RWmatch(regexPattern, regexInput, modifiers) {
-						if(regexPattern != "" && regexInput != ""){
-							try {
-								var pattern = RegExp(regexPattern, modifiers);
-							} catch (e) {
-								// Error: Not a regular expression
-							}
-							var matchArray = new Array();
-							
-							
-							match = pattern.exec(regexInput);
-							for (var i = 0; match != null; i++) {
-								matchArray[i] = match[1];
-								for(var j = 2; j <= match.length-1; j++){
-									matchArray[i] = matchArray[i] + "," + match[j];
-								}
-								
-								match = pattern.exec(regexInput);
-								
-								
-								if(i > 1000000) {
-									alert("Stopped operation => Over 1 million data sets.");
-									break;
-								}
-							}
-						
-						
-							return matchArray;
-						}
-					}
-
-					function RWreplace(regexPattern, regexReplace, regexInput, modifiers) {
-						try {
-							var pattern = RegExp(regexPattern, modifiers);
-						} catch (e) {
-							// Error: Not a regular expression
-						}
-						
-						return regexInput.replace(pattern, regexReplace);
-					}
-
-				
-			});
-		</script>
-	</head>
-	<body>
-		Regular Expression Pattern:<br />
-		<div id="regexPattern" class="regex" contenteditable=""></div>
-		<button id="forceRefresh">Force refresh</button>
-		<br />
-		Options:<br />
-		<input type="checkbox" id="optionReplace">Replace <input type="checkbox" id="optionMultiline">Multiline <input type="checkbox" id="optionIgnoreCase">Ignore Case
-		<br />
-		<br />
-		Replace String:
-		<input type="text" id="regexReplace" />
-		<br />
-		<br />
-		Search String:<br />
-		<textarea id="regexInput"></textarea>
-		<br />
-		<br />
-		Output String:<br />
-		<textarea id="regexOutput" readonly="readonly"></textarea>
-		<br />
-		<br />
-		Matches: <span id="numberOfMatches">0</span>
-		<br />
-		<br />
-		<center>
-			RegexWorkbench.js is a editor for regular expressions based on javascript. Features are Highlighting, Replace, Ignore Cases, Multiline and a human readable output. [ MIT License ]<br />
-			<a href="https://github.com/Staubteufel/RegexWorkbench.js">Fork me on Github</a>
-		</center>
-	</body>
+        // Function to perform regex replacement
+        function RWreplace(regexPattern, regexReplace, regexInput, modifiers) {
+          try {
+            var pattern = RegExp(regexPattern, modifiers);
+          } catch (e) {
+            // Error: Not a valid regular expression
+          }
+          
+          return regexInput.replace(pattern, regexReplace);
+        }
+      });
+    </script>
+  </head>
+  <body>
+    Regular Expression Pattern:<br />
+    <div id="regexPattern" class="regex" contenteditable=""></div>
+    <button id="forceRefresh">Force refresh</button>
+    <br />
+    Options:<br />
+    <input type="checkbox" id="optionReplace">Replace 
+    <input type="checkbox" id="optionMultiline">Multiline 
+    <input type="checkbox" id="optionIgnoreCase">Ignore Case
+    <br /><br />
+    Replace String:
+    <input type="text" id="regexReplace" />
+    <br /><br />
+    Search String:<br />
+    <textarea id="regexInput"></textarea>
+    <br /><br />
+    Output String:<br />
+    <textarea id="regexOutput" readonly="readonly"></textarea>
+    <br />
+    <!-- Button to remove duplicate lines in output -->
+    <button id="uniqueOutput">Make Unique Output</button>
+    <br /><br />
+    Matches: <span id="numberOfMatches">0</span>
+    <br /><br />
+    <center>
+      RegexWorkbench.js is an editor for regular expressions based on javascript. Features are Highlighting, Replace, Ignore Cases, Multiline and a human readable output. [ MIT License ]<br />
+      <a href="https://github.com/Staubteufel/RegexWorkbench.js">Fork me on Github</a>
+    </center>
+  </body>
 </html>
